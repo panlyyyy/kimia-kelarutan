@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Latihan ASAT Kimia (Ksp) - SMA Sedes Sapientiae</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        
+        /* FIX UTAMA: WORD WRAPPING & LAYOUT MOBILE */
+        .option-card {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            width: 100%;
+        }        
+        .option-text {
+            flex: 1;
+            min-width: 0; /* Crucial for flex text wrapping */
+            line-height: 1.6;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+        
+        .nav-unanswered { background: white; border-color: #f1f5f9; color: #cbd5e1; }
+        .nav-answered { background: #4f46e5; border-color: #4f46e5; color: white; }
+        .nav-doubt-only { background: white; border-color: #f59e0b; color: #f59e0b; }
+        .nav-answered-doubt { background: #4f46e5; border-color: #f59e0b; color: white; border-width: 3px; }
+        
+        #overlay.active { opacity: 1; pointer-events: auto; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        mjx-container { font-size: 1.1em !important; }
+        
+        /* Mobile Height Fix */
+        @supports (-webkit-touch-callout: none) {
+            .min-h-screen { min-height: -webkit-fill-available; }
+        }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 overflow-hidden h-screen flex flex-col relative">
+
+    <!-- Watermark -->
+    <div class="fixed inset-0 flex items-center justify-center opacity-[0.03] text-slate-900 pointer-events-none select-none z-0 text-center font-black tracking-widest text-4xl sm:text-7xl md:text-8xl rotate-[-20deg]">
+        KSP KIMIA SEDES XI
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p class="mt-4 text-slate-400 text-xs font-bold uppercase tracking-widest">Memuat & Mengacak Soal...</p>
+    </div>
+
+    <!-- Header -->
+    <header class="glass-header sticky top-0 z-50 h-16 border-b border-slate-200 flex items-center justify-between px-4 lg:px-10 shrink-0 relative">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <i data-lucide="beaker" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-xs sm:text-sm tracking-tight text-slate-800 uppercase leading-none">ULANGAN HARIAN KSP XI</h1>
+                <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Sedes Sapientiae - KELAS XI</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <div id="timer-box" class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200 font-mono font-bold text-xs text-slate-700 shadow-sm">                <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-500"></i>
+                <span id="timer-display">01:30:00</span>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 bg-white border border-slate-200 rounded-xl text-slate-600 shadow-sm">
+                <i data-lucide="layout-grid" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative z-10">
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-10 relative" style="height: calc(100vh - 64px);">
+            <div class="max-w-3xl mx-auto space-y-6 pb-24">
+                <div id="question-card" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="h-1.5 w-full bg-slate-100">
+                        <div id="top-progress" class="h-full bg-indigo-600 transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
+                        <span id="q-number-tag" class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-black uppercase tracking-wider">SOAL 1</span>
+                        <div class="flex items-center gap-2">
+                            <span id="correction-badge" class="hidden px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider"></span>
+                            <button onclick="toggleDoubt()" id="btn-doubt" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border border-slate-200 text-slate-400">
+                                <i data-lucide="flag" class="w-3.5 h-3.5"></i>
+                                <span id="doubt-text">RAGU-RAGU</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="content-area" class="p-6 lg:p-8 space-y-6 animate-fade-in">
+                        <h2 id="q-text" class="text-base lg:text-lg font-bold text-slate-800 leading-relaxed whitespace-pre-wrap break-words w-full"></h2>
+                        
+                        <div id="q-code-container" class="hidden">
+                            <pre class="p-4 bg-slate-900 text-slate-100 rounded-2xl text-[11px] sm:text-xs overflow-x-auto font-mono border border-slate-800 whitespace-pre-wrap break-all"><code id="q-code"></code></pre>
+                        </div>
+
+                        <div id="q-sub" class="hidden p-4 bg-indigo-50/50 rounded-xl border-l-4 border-indigo-500">
+                            <p class="text-indigo-900 font-semibold italic text-sm whitespace-pre-wrap break-words w-full"></p>
+                        </div>
+
+                        <div id="options-grid" class="grid gap-3 w-full"></div>
+                    </div>
+
+                    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between sticky bottom-0 z-10">
+                        <button onclick="prevQ()" id="btn-prev" class="flex items-center gap-1 px-4 py-2 rounded-xl text-[10px] font-black text-slate-400 disabled:opacity-30 uppercase tracking-widest">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i> Kembali
+                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="nextQ()" id="btn-next" class="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">
+                                Lanjut <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>                            <button onclick="finishExam()" id="btn-finish" class="hidden flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">
+                                Selesai <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside id="sidebar" class="fixed inset-y-0 right-0 lg:relative translate-x-full lg:translate-x-0 w-72 bg-white border-l border-slate-200 transition-transform duration-300 z-[70] flex flex-col shadow-2xl lg:shadow-none">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-extrabold text-xs text-slate-800 uppercase tracking-widest">Navigasi Soal</h3>
+                <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/30">
+                <div id="grid-nav" class="grid grid-cols-5 gap-2"></div>
+            </div>
+            <div class="p-5 bg-white border-t border-slate-200">
+                <button id="main-submit-btn" onclick="finishExam()" class="w-full py-3.5 bg-indigo-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg flex items-center justify-center gap-2">
+                    Kumpulkan <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
+        </aside>
+
+        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 z-[60] opacity-0 pointer-events-none transition-all duration-300 lg:hidden"></div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="modal-result" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-[32px] shadow-2xl w-full max-w-sm overflow-hidden transform animate-fade-in text-center">
+            <div class="bg-indigo-600 p-8 text-white">
+                <h2 class="text-lg font-bold">Hasil Akhir</h2>
+                <div id="final-score" class="text-7xl font-black my-2">0</div>
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Skor Kompetensi</p>
+                <p id="final-summary" class="text-xs mt-2 opacity-90 font-medium"></p>
+            </div>
+            <div class="p-6 space-y-3 bg-slate-50">
+                <button onclick="closeResult()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md">Lihat Koreksi</button>
+                <button onclick="location.reload()" class="w-full py-3 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold text-[10px] uppercase tracking-widest">Ulangi Sesi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MASTER_DATA = [
+            { id: 1, question: "Ksp larutan garam terner yang memiliki kelarutan a mol/L adalah.......", options: ["a²", "4a³", "9a³", "27a⁴", "108a⁵"], answer: "B" },
+            { id: 2, question: "Jika Ksp Al(OH)₃ adalah x, maka kelarutan Al(OH)₃ dalam air murni.......", options: ["9x³", "27x⁴", "(x/9)¹/³", "108x⁴", "(x/27)¹/⁴"], answer: "E" },
+            { id: 3, question: "Jika konsentrasi Ca²⁺ dalam larutan jenuh 2 × 10⁻⁴ mol/L, maka Ksp CaF₂ adalah.......", options: ["8 × 10⁻⁸", "3,2 × 10⁻¹¹", "2 × 10⁻¹²", "1,6 × 10⁻¹¹", "4 × 10⁻¹²"], answer: "B" },
+            { id: 4, question: "Diketahui Ksp Ag₂CrO₄ = 4 × 10⁻¹² maka kelarutan dalam air....... mol/L.", options: ["0,1", "0,01", "0,001", "0,0001", "0,00001"], answer: "D" },
+            { id: 5, question: "Diketahui Ksp AgCl = 1 × 10⁻¹⁰, maka kelarutan AgCl (Mr = 143,5) dalam 100 mL larutan adalah...", options: ["1,435 mg", "14,35 mg", "143,5 mg", "1435 mg", "14,35 g"], answer: "A" },
+            { id: 6, question: "Diketahui harga Ksp dari garam-garam di bawah ini:\n1. CaCO₃ = 5 × 10⁻⁹\n2. BaCO₃ = 2 × 10⁻¹⁰\n3. CaSO₄ = 2 × 10⁻⁴\n4. BaSO₄ = 1 × 10⁻⁹\n5. CaCrO₄ = 7 × 10⁻⁴\nGaram yang paling mudah larut dalam air adalah.......", options: ["CaCO₃", "BaCO₃", "CaSO₄", "BaSO₄", "CaCrO₄"], answer: "E" },
+            { id: 7, question: "Di antara garam-garam di bawah ini, garam yang kelarutan dalam air paling kecil adalah.......", options: ["PbSO₄ (Ksp = 2 × 10⁻⁸)", "BaCrO₄ (Ksp = 1 × 10⁻¹⁰)", "CaF₂ (Ksp = 2 × 10⁻¹⁰)", "Ag₂CrO₄ (Ksp = 1 × 10⁻¹²)", "SrCO₃ (Ksp = 7 × 10⁻¹⁰)"], answer: "B" },
+            { id: 8, question: "Diketahui Data Ksp dari senyawa di bawah ini:\n1. AgCN = 1,2 × 10⁻¹⁶\n2. AgOH = 1,2 × 10⁻¹²\n3. AgIO₃ = 1 × 10⁻¹²\n4. AgBr = 5 × 10⁻¹³\nUrutan kelarutan garam dalam air dari yang besar ke kecil adalah......", options: ["1, 4, 3 dan 2", "2, 3, 4 dan 1", "3, 2, 1 dan 4", "4, 2, 1 dan 3", "3, 4, 2 dan 1"], answer: "B" },
+            { id: 9, question: "Kelarutan zat dalam air dipengaruhi oleh beberapa faktor sebagai berikut, kecuali.......", options: ["suhu", "ion senama", "pengadukan", "asam", "bentuk molekul"], answer: "E" },
+            { id: 10, question: "Kelarutan AgCl yang paling besar terdapat dalam.......", options: ["air", "AgNO₃ 0,15 M", "NaCl 0,1 M", "HCl 0,1 M", "CaCl₂ 0,1 M"], answer: "A" },
+            { id: 11, question: "Kelarutan PbCl₂ paling kecil terdapat dalam larutan.......", options: ["HCl 0,1 M", "NaCl 0,1 M", "CaCl₂ 0,1 M", "Pb(NO₃)₂ 0,1 M", "AlCl₃ 0,1 M"], answer: "E" },
+            { id: 12, question: "Kelarutan BaSO₄ paling kecil jika dilarutkan dalam......", options: ["air", "Na₂SO₄ 0,1 M", "BaCl₂ 0,1 M", "Ba(NO₃)₂ 0,05 M", "Al₂(SO₄)₃ 0,05 M"], answer: "E" },
+            { id: 13, question: "Jika Ksp AgCl = 1 × 10⁻¹⁰ maka kelarutan AgCl dalam 1 liter larutan KCl 0,01 M adalah....... mol/L.", options: ["10⁻²", "10⁻¹⁰", "10⁻⁴", "10⁻⁶", "10⁻⁸"], answer: "E" },
+            { id: 14, question: "Jika Ksp Ag₂CrO₄ = 2,4 × 10⁻¹², maka kelarutan Ag₂CrO₄ dalam AgNO₃ 0,001 M adalah......", options: ["8 × 10⁻⁵", "2,4 × 10⁻⁶", "1,5 × 10⁻⁵", "2,4 × 10⁻⁵", "1,5 × 10⁻⁶"], answer: "B" },
+            { id: 15, question: "Kelarutan Mg(OH)₂ dalam air sebesar 1 × 10⁻² mol.L⁻¹, maka Ksp Mg(OH)₂ adalah......", options: ["1 × 10⁻⁶", "2 × 10⁻⁶", "4 × 10⁻⁶", "2 × 10⁻⁴", "4 × 10⁴"], answer: "C" },
+            { id: 16, question: "Jika kelarutan PbI₂ (Mr = 461) sebesar 922 mg.L⁻¹, maka hasil kali kelarutan PbI₂ adalah.......", options: ["3,2 × 10⁻⁸", "1,6 × 10⁻⁹", "8,0 × 10⁻⁷", "3,2 × 10⁻¹⁰", "1,6 × 10⁻¹⁰"], answer: "A" },
+            { id: 17, question: "Jika konsentrasi Ca²⁺ dalam larutan jenuh CaF₂ = 2 × 10⁻⁴ mol.L⁻¹, maka hasil kali kelarutan CaF₂ adalah.......", options: ["8 × 10⁻⁸", "3,2 × 10⁻¹¹", "1,6 × 10⁻¹¹", "2 × 10⁻¹²", "4 × 10⁻¹²"], answer: "B" },
+            { id: 18, question: "Garam dengan kelarutan paling besar adalah......", options: ["AgCl Ksp = 10⁻¹⁰", "AgI Ksp = 10⁻¹⁶", "Ag₂CrO₄ Ksp = 3,2 × 10⁻¹²", "Ag₂S₂ Ksp = 1,6 × 10⁻⁴⁹", "Ag₂C₂O₄ Ksp = 1,1 × 10⁻¹¹"], answer: "E" },
+            { id: 19, question: "Kelarutan garam AgCl yang terkecil terdapat pada larutan......", options: ["HCl 0,1 M", "NaCl 0,1 M", "CuCl₂ 0,1 M", "BaCl₂ 0,1 M", "AlCl₃ 0,2 M"], answer: "E" },
+            { id: 20, question: "Lima gelas kimia berisi larutan dengan volume yang sama. Jika ke dalam lima gelas kimia itu dilarutkan sejumlah perak klorida padat, maka perak klorida padat akan paling mudah larut dalam gelas kimia yang berisi.......", options: ["HCl 2,00 M", "HCl 1,00 M", "HCl 0,2 M", "HCl 0,01 M", "HCl 1,0 M"], answer: "D" },
+            { id: 21, question: "Kelarutan AgBr dalam air adalah 3 × 10⁻⁶ mol.L⁻¹, maka kelarutan AgBr dalam larutan CaBr₂ 0,05 M adalah.......", options: ["6 × 10⁻⁹", "9 × 10⁻⁹", "9 × 10⁻¹¹", "3 × 10⁻⁹", "3 × 10⁻⁵"], answer: "C" },
+            { id: 22, question: "Diketahui hasil kali kelarutan (Ksp) dari Mg(OH)₂ = 1,2 × 10⁻¹¹. Bila larutan MgCl₂ 0,2 M dinaikkan pH-nya dengan jalan penambahan NaOH, maka endapan akan mulai terbentuk pada pH kira-kira.......", options: ["8", "9", "10", "11", "12"], answer: "B" },
+            { id: 23, question: "Hasil kali kelarutan timbal(II) iodida adalah......", options: ["[Pb²⁺].[I⁻]²", "[Pb²⁺].[2I⁻]", "[Pb²⁺].[I₂⁻]", "[Pb²⁺].[2I⁻]²", "[Pb²⁺].[I⁻]"], answer: "A" },
+            { id: 24, question: "Hasil kali kelarutan Cr(OH)₂ adalah 1,08 × 10⁻¹⁹, maka kelarutan Cr(OH)₂ dalam mol.L⁻¹ adalah.......", options: ["6,56 × 10⁻¹⁰", "16,4 × 10⁻¹⁰", "3,0 × 10⁻⁷", "3,22 × 10⁻⁹", "3,28 × 10⁻⁹"], answer: "C" },
+            { id: 25, question: "Diketahui Ksp Mg(OH)₂ = 4 × 10⁻¹², maka banyaknya Mg(OH)₂ yang terlarut dalam 500 cm³ air (Ar Mg = 24, O = 16 dan H = 1) adalah.......", options: ["5,8 × 10⁻⁶ mg", "1,16 × 10⁻⁷ mg", "2,9 mg", "5,8 mg", "11,6 mg"], answer: "C" },
+            { id: 26, question: "Kelarutan L(OH)₃ dalam air sebesar 2 × 10⁻⁴ mol.L⁻¹. Larutan jenuh L(OH)₃ dalam air mempunyai pH sebesar......", options: ["4 – log 6", "6 – log 4", "9 + log 6", "10 + log 2", "10 + log 6"], answer: "E" },
+            { id: 27, question: "Larutan jenuh basa L(OH)₂ mempunyai pH sebesar = 11, maka Ksp L(OH)₂ adalah......", options: ["5,0 × 10⁻⁴", "2,5 × 10⁻³", "5,0 × 10⁻¹⁰", "1,25 × 10⁻¹⁰", "2,5 × 10⁻¹⁵"], answer: "C" },
+            { id: 28, question: "Bila Ksp CaF₂ = 4 × 10⁻¹¹, maka kelarutan CaF₂ dalam CaCl₂ 0,01 M adalah.......", options: ["1,28 × 10⁻⁴ M", "2,3 × 10⁻⁵ M", "3,4 × 10⁻⁴ M", "4,3 × 10⁻⁴ M", "3,2 × 10⁻⁵ M"], answer: "E" },
+            { id: 29, question: "Jika diketahui kelarutan garam CaSO₄ dalam air murni adalah 0,68 gram per liter, maka hasil kali kelarutan CaSO₄ adalah....... (Mr CaSO₄ = 136)", options: ["5 × 10⁻⁴", "2,5 × 10⁻⁵", "5 × 10⁻⁶", "2,5 × 10⁻⁶", "6,8 × 10⁻⁷"], answer: "B" },
+            { id: 30, question: "Jika diketahui Ksp AgCl = 10⁻¹⁰, maka kelarutan AgCl dalam 1 liter larutan KCl 0,01 M adalah.......", options: ["10⁻² M", "10⁻³ M", "10⁻⁴ M", "10⁻⁶ M", "10⁻⁸ M"], answer: "E" },
+            { id: 31, question: "Pada suhu 25°C, Ksp Mg(OH)₂ = 1 × 10⁻¹¹, MgCl₂ yang harus ditambahkan ke dalam 1 liter larutan NaOH dengan pH = 12 agar diperoleh larutan yang jenuh dengan Mg(OH)₂ adalah.......", options: ["10⁻¹¹ mol", "10⁻¹⁰ mol", "10⁻⁹ mol", "10⁻⁸ mol", "10⁻⁷ mol"], answer: "E" },
+            { id: 32, question: "Dalam satu larutan terdapat ion-ion Ca²⁺, Sr²⁺, Ba²⁺ dan Pb²⁺ dengan konsentrasi yang sama. Apabila larutan itu ditetesi dengan larutan Na₂SO₄, maka zat yang mula-mula mengendap adalah.......", options: ["CaSO₄ (Ksp = 2,4 × 10⁻¹⁰)", "SrSO₄ (Ksp = 2,5 × 10⁻⁷)", "BaSO₄ (Ksp = 1,1 × 10⁻¹⁰)", "PbSO₄ (Ksp = 1,7 × 10⁻⁸)", "mengendap bersama-sama"], answer: "C" },
+            { id: 33, question: "Suatu larutan mengandung garam Pb(NO₃)₂, Mn(NO₃)₂, dan Zn(NO₃)₂ masing-masing konsentrasinya 0,01 M. Pada larutan ini dilarutkan sejumlah NaOH padat hingga pH larutan menjadi 8. Berdasar data Ksp: Pb(OH)₂ = 2,8 × 10⁻¹⁶, Mn(OH)₂ = 4,5 × 10⁻¹⁴, Zn(OH)₂ = 4,5 × 10⁻¹⁷. Hidroksida yang mengendap adalah.......", options: ["Mn(OH)₂", "Zn(OH)₂", "Pb(OH)₂", "Zn(OH)₂ dan Pb(OH)₂", "Pb(OH)₂, Mn(OH)₂ dan Zn(OH)₂"], answer: "D" },
+            { id: 34, question: "Jika Ksp AgCl = 10⁻¹⁰, maka kelarutan AgCl dalam 1 liter larutan KCl 0,01 M adalah....... mol/L.", options: ["10⁻²", "10⁻³", "10⁻⁴", "10⁻⁶", "10⁻⁸"], answer: "E" },
+            { id: 35, question: "Jika diketahui Ksp AgOH = 1 × 10⁻⁸, maka kelarutannya dalam larutan NaOH 0,01 M adalah.......", options: ["2 × 10⁻⁶ mol/L", "1 × 10⁻⁶ mol/L", "2 × 10⁻⁴ mol/L", "2,7 × 10⁻⁴ mol/L", "2 × 10⁻² mol/L"], answer: "B" }
+        ];
+
+        let questions = [];
+        let currentIdx = 0;
+        let answers = {};
+        let doubts = {};
+        let timeLeft = 5400;
+        let timerInterval;
+        let isFinished = false;
+
+        function escapeHTML(str) {
+            if (!str) return "";
+            const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": '&#039;' };
+            return String(str).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function shuffleQuestionsAndOptions() {
+            questions = shuffle(MASTER_DATA);
+            questions.forEach(q => {
+                if (q.options && q.options.length > 0 && q.answer) {
+                    const correctIndex = q.answer.charCodeAt(0) - 65;
+                    if (correctIndex >= 0 && correctIndex < q.options.length) {
+                        const correctText = q.options[correctIndex];
+                        q.options = shuffle(q.options);
+                        const newIdx = q.options.indexOf(correctText);
+                        q.answer = newIdx !== -1 ? String.fromCharCode(65 + newIdx) : q.answer;
+                    }
+                }
+            });
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader && !loader.classList.contains('hidden')) {
+                loader.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => loader.remove(), 300);
+            }        }
+
+        function init() {
+            try {
+                shuffleQuestionsAndOptions();
+                renderSidebar();
+                updateQuestion();
+                startTimer();
+                if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+            } catch (err) {
+                console.error("Init Error:", err);
+                document.getElementById('loader').innerHTML = `<div class="text-center"><p class="text-rose-600 font-bold mb-2">⚠️ Error</p><p class="text-xs text-slate-500 mb-4">${err.message}</p><button onclick="location.reload()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold">Reload</button></div>`;
+            } finally {
+                setTimeout(hideLoader, 2000);
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (isFinished) return;
+                timeLeft--;
+                if (timeLeft <= 0) { clearInterval(timerInterval); finishExam(); return; }
+                const h = Math.floor(timeLeft / 3600);
+                const m = Math.floor((timeLeft % 3600) / 60);
+                const s = timeLeft % 60;
+                const el = document.getElementById('timer-display');
+                if (el) el.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            }, 1000);
+        }
+
+        function updateQuestion() {
+            const q = questions[currentIdx];
+            if (!q) return;
+
+            const qNum = document.getElementById('q-number-tag');
+            if (qNum) qNum.textContent = `SOAL ${currentIdx + 1}`;
+
+            const qText = document.getElementById('q-text');
+            if (qText) qText.innerHTML = escapeHTML(q.question);
+
+            const codeCont = document.getElementById('q-code-container');
+            const codeEl = document.getElementById('q-code');
+            if (q.code) {
+                codeCont?.classList.remove('hidden');
+                if (codeEl) codeEl.textContent = q.code;
+            } else {
+                codeCont?.classList.add('hidden');
+            }
+
+            const sub = document.getElementById('q-sub');            if (q.subQuestion) {
+                sub?.classList.remove('hidden');
+                const subP = sub?.querySelector('p');
+                if (subP) subP.innerHTML = escapeHTML(q.subQuestion);
+            } else {
+                sub?.classList.add('hidden');
+            }
+
+            const grid = document.getElementById('options-grid');
+            if (grid) {
+                grid.innerHTML = '';
+                q.options.forEach((opt, i) => {
+                    const char = String.fromCharCode(65 + i);
+                    const isSel = answers[currentIdx] === char;
+                    const isCorr = q.answer === char;
+                    let c = "w-full option-card p-4 rounded-2xl border-2 transition-all cursor-pointer ";
+                    let ic = "w-8 h-8 shrink-0 rounded-xl flex items-center justify-center font-black text-xs ";
+
+                    if (isFinished) {
+                        if (isCorr) { c += "border-emerald-500 bg-emerald-50 text-emerald-900"; ic += "bg-emerald-500 text-white"; }
+                        else if (isSel && !isCorr) { c += "border-rose-500 bg-rose-50 text-rose-900"; ic += "bg-rose-500 text-white"; }
+                        else { c += "border-slate-100 bg-white opacity-60 cursor-not-allowed"; ic += "bg-slate-100 text-slate-400"; }
+                    } else {
+                        if (isSel) { c += "border-indigo-600 bg-indigo-50/50 text-indigo-900 shadow-sm"; ic += "bg-indigo-600 text-white shadow-md"; }
+                        else { c += "border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50"; ic += "bg-slate-100 text-slate-400"; }
+                    }
+
+                    const btn = document.createElement('button');
+                    btn.className = c; btn.disabled = isFinished;
+                    btn.onclick = () => !isFinished && selectOption(char);
+                    btn.innerHTML = `<div class="${ic}">${char}</div><span class="option-text text-sm font-bold">${escapeHTML(opt)}</span>`;
+                    grid.appendChild(btn);
+                });
+            }
+
+            const badge = document.getElementById('correction-badge');
+            if (badge) {
+                if (isFinished) {
+                    badge.classList.remove('hidden');
+                    const u = answers[currentIdx];
+                    badge.textContent = u === q.answer ? "BENAR" : (u ? "SALAH" : "KOSONG");
+                    badge.className = `px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${u === q.answer ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`;
+                } else badge.classList.add('hidden');
+            }
+
+            document.getElementById('btn-prev').disabled = currentIdx === 0;
+            if (currentIdx === questions.length - 1) {
+                document.getElementById('btn-next')?.classList.add('hidden');
+                if (!isFinished) document.getElementById('btn-finish')?.classList.remove('hidden');
+            } else {                document.getElementById('btn-next')?.classList.remove('hidden');
+                document.getElementById('btn-finish')?.classList.add('hidden');
+            }
+
+            const btnDoubt = document.getElementById('btn-doubt');
+            const doubtText = document.getElementById('doubt-text');
+            if (btnDoubt && doubtText) {
+                btnDoubt.className = doubts[currentIdx] ? "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black border border-amber-500 bg-amber-500 text-white shadow-sm" : "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black border border-slate-200 text-slate-400";
+                doubtText.textContent = doubts[currentIdx] ? "DITANDAI RAGU" : "RAGU-RAGU";
+            }
+
+            updateProgress();
+            renderSidebar();
+
+            try {
+                if (window.MathJax && typeof MathJax.typesetPromise === 'function') MathJax.typesetPromise().catch(() => {});
+            } catch(e) {}
+        }
+
+        function selectOption(char) { if (!isFinished) { answers[currentIdx] = char; updateQuestion(); } }
+        function toggleDoubt() { if (!isFinished) { doubts[currentIdx] = !doubts[currentIdx]; updateQuestion(); } }
+        function nextQ() { if (currentIdx < questions.length - 1) { currentIdx++; updateQuestion(); scrollToTop(); } }
+        function prevQ() { if (currentIdx > 0) { currentIdx--; updateQuestion(); scrollToTop(); } }
+        function jumpTo(idx) { currentIdx = idx; updateQuestion(); if (window.innerWidth < 1024) toggleSidebar(); scrollToTop(); }
+        function scrollToTop() { document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function updateProgress() { const p = (Object.keys(answers).length / questions.length) * 100; const b = document.getElementById('top-progress'); if (b) b.style.width = `${p}%`; }
+
+        function renderSidebar() {
+            const grid = document.getElementById('grid-nav');
+            if (!grid) return;
+            grid.innerHTML = '';
+            questions.forEach((q, i) => {
+                const btn = document.createElement('button');
+                const isAns = answers[i] !== undefined, isDbt = doubts[i] === true, isAct = currentIdx === i;
+                let cls = "h-10 rounded-xl text-[10px] font-black transition-all border-2 focus:outline-none ";
+                if (isFinished) {
+                    if (answers[i] === q.answer) cls += "bg-emerald-500 border-emerald-500 text-white ";
+                    else if (answers[i]) cls += "bg-rose-500 border-rose-500 text-white ";
+                    else cls += "bg-slate-200 border-slate-200 text-slate-500 ";
+                } else {
+                    if (isAns && isDbt) cls += "bg-indigo-600 border-amber-500 text-white ";
+                    else if (isAns) cls += "bg-indigo-600 border-indigo-600 text-white ";
+                    else if (isDbt) cls += "bg-white border-amber-500 text-amber-500 ";
+                    else cls += "bg-white border-slate-200 text-slate-400 hover:border-slate-300 ";
+                }
+                if (isAct) cls += "ring-2 ring-indigo-400 ring-offset-1 ";
+                btn.className = cls; btn.textContent = i + 1; btn.onclick = () => jumpTo(i);
+                grid.appendChild(btn);
+            });
+        }
+        function toggleSidebar() {
+            document.getElementById('sidebar')?.classList.toggle('translate-x-full');
+            document.getElementById('overlay')?.classList.toggle('active');
+        }
+
+        function finishExam() {
+            if (isFinished) return;
+            clearInterval(timerInterval);
+            isFinished = true;
+            let correct = 0;
+            questions.forEach((q, i) => { if (answers[i] === q.answer) correct++; });
+            const finalScore = Math.round((correct / questions.length) * 100);
+            document.getElementById('final-score').textContent = finalScore;
+            document.getElementById('final-summary').textContent = `Menjawab ${correct} dari ${questions.length} soal dengan benar.`;
+            document.getElementById('modal-result')?.classList.remove('hidden');
+            document.getElementById('timer-box')?.classList.add('hidden');
+            document.getElementById('main-submit-btn')?.classList.add('hidden');
+            document.getElementById('btn-finish')?.classList.add('hidden');
+            updateQuestion();
+        }
+
+        function closeResult() { document.getElementById('modal-result')?.classList.add('hidden'); }
+
+        function safeInit() {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
+        }
+        safeInit();
+    </script>
+</body>
+</html>
